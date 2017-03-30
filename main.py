@@ -22,6 +22,11 @@ indexHeader = """
 <html>
 <head>
     <title>User-Signup</title>
+    <style>
+        span.error {
+            color:red;
+        }
+    </style>
 </head>
 <body>
     <h1>Signup</h1>
@@ -36,7 +41,9 @@ class Index(webapp2.RequestHandler):
 
     """Handles requests coming in to '/' """
     def get(self):
-        indexForm = """
+
+
+        userNameForm = """
         <form method ="post">
             <table>
                 <tbody>
@@ -45,34 +52,46 @@ class Index(webapp2.RequestHandler):
                             <label for="username">Username</label>
                         </td>
                         <td>
-                            <input name="username" type="text" value required>
-                            <span class="error"></span>
+                            <input name="username" type="text" value required>"""
+        userNameErrorSpan = ""
+        userNameErrorMsg = self.request.get('userNameError')
+        if userNameErrorMsg:
+            userNameErrorSpan = "<span class='error'>" + cgi.escape(userNameErrorMsg) + "</span>"
+        passwordForm = """
+
                         </td>
                     </tr>
+
                     <tr>
                         <td>
                             <label for="password">Password</label>
                         </td>
                         <td>
                             <input name="password" type="password" value required>
-                            <span class="error"></span>
                         </td>
                     </tr>
+
                     <tr>
                         <td>
                             <label for="verifyPassword">Verify Password</label>
                         </td>
                         <td>
-                            <input name="verifyPassword" type="password" value required>
+                            <input name="verifyPassword" type="password" value required>"""
+        passwordErrorSpan = ""
+        passwordErrorMsg = self.request.get('passwordError')
+        if passwordErrorMsg:
+                passwordErrorSpan = "<span class='error'>" + cgi.escape(passwordErrorMsg) + "</span>"
+        emailForm = """
+
                             <span class="error"></span>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <label for="email">Email</label>
+                            <label for="email">Email (optional)</label>
                         </td>
                         <td>
-                            <input name="email" type="text" value required>
+                            <input name="email" type="email">
                             <span class="error"></span>
                         </td>
                     </tr>
@@ -81,9 +100,32 @@ class Index(webapp2.RequestHandler):
             <input type="submit">
         </form>
         """
+#must have seperate error castings so that the proper error lands in proper location?
 
-        formContent = indexHeader + indexForm + indexFooter
+
+
+        formContent = indexHeader + userNameForm + userNameErrorSpan + passwordForm + passwordErrorSpan + emailForm + indexFooter
         self.response.write(formContent)
+    def post(self):
+        #looks inside the request to see what the user typed into form
+
+        user_Name = self.request.get("username")
+
+        if " " in user_Name:
+            self.redirect('/?userNameError= Please enter valid Username that contains no spaces.')
+
+        user_Email = self.request.get("email")
+
+        user_Password = self.request.get("password")
+
+        user_VerifyPassword = self.request.get("verifyPassword")
+
+        if user_Password != user_VerifyPassword:
+            self.redirect('/?passwordError= Passwords must match.')
+
+
+
+
 
 app = webapp2.WSGIApplication([
     ('/', Index)
