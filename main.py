@@ -57,6 +57,7 @@ class Index(webapp2.RequestHandler):
         userNameErrorMsg = self.request.get('userNameError')
         if userNameErrorMsg:
             userNameErrorSpan = "<span class='error'>" + cgi.escape(userNameErrorMsg) + "</span>"
+
         passwordForm = """
 
                         </td>
@@ -112,7 +113,9 @@ class Index(webapp2.RequestHandler):
         user_Name = self.request.get("username")
 
         if " " in user_Name:
-            self.redirect('/?userNameError= Please enter valid Username that contains no spaces.')
+            self.redirect("/?userNameError= Please enter valid Username that contains no spaces.")
+
+
 
         user_Email = self.request.get("email")
 
@@ -123,7 +126,9 @@ class Index(webapp2.RequestHandler):
         if user_Password != user_VerifyPassword:
             self.redirect('/?passwordError= Passwords must match.')
 
+        postHeader = "<h1>Welcome, " + user_Name + "!</h1>"
 
+        self.response.write(postHeader)
 
 
 
