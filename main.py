@@ -110,18 +110,18 @@ class Index(webapp2.RequestHandler):
     def post(self):
         #looks inside the request to see what the user typed into form
 
-        user_Name = self.request.get("username")
+        user_Name = cgi.escape(self.request.get("username"))
 
         if " " in user_Name:
             self.redirect("/?userNameError= Please enter valid Username that contains no spaces.")
 
 
 
-        user_Email = self.request.get("email")
+        user_Email = cgi.escape(self.request.get("email"))
 
-        user_Password = self.request.get("password")
+        user_Password = cgi.escape(self.request.get("password"))
 
-        user_VerifyPassword = self.request.get("verifyPassword")
+        user_VerifyPassword = cgi.escape(self.request.get("verifyPassword"))
 
         if user_Password != user_VerifyPassword:
             self.redirect('/?passwordError= Passwords must match.')
