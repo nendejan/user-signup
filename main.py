@@ -15,16 +15,16 @@
 # limitations under the License.
 #
 
- #TODO: impliment regular expressions for input (bottom of udacity page)
- #TODO: multiple errors show all their messages on the same redirect
- #TODO: preserve user imput through redirect (string substitution?
+ #TODO:DONE impliment regular expressions for input (bottom of udacity page)
+ #TODO:DONE multiple errors show all their messages on the same redirect
+ #TODO:DONE preserve user imput through redirect (string substitution?
 
 
 
 import webapp2
 import cgi
 import re
-
+#HTML saved into variable
 indexHeader = """
 <!DOCTYPE html>
 <html>
@@ -48,7 +48,7 @@ indexFooter = """
 """
 
 
-
+#Main form for signup page
 
 form = """
 <form method ="post">
@@ -97,6 +97,7 @@ form = """
     <input type="submit">
 </form>"""
 
+#RE checks various requirements for inputs
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 def valid_username(username):
     return USER_RE.match(username)
@@ -115,32 +116,35 @@ def passwordsMatch(password, verifyPassword):
     else:
         passwordVerified = False
 
-
+#variable that contains HTML code
 formContent = indexHeader + form + indexFooter
+
+#handles '/'
 class Index(webapp2.RequestHandler):
 
     def get(self):
 
         self.write_form_includes_Errors()
-
+#includes error information and user input information in form space
     def write_form_includes_Errors(self, userNameErrorMsg="", passwordErrorMsg ="", emailErrorMsg="", verifyPasswordErrorMsg="", username="", password="", verifyPassword="", email=""):
 
         self.response.out.write(formContent % {"userNameErrorMsg": userNameErrorMsg, "passwordErrorMsg": passwordErrorMsg, "emailErrorMsg": emailErrorMsg, "verifyPasswordErrorMsg": verifyPasswordErrorMsg, "username": cgi.escape(username), "password": cgi.escape(password), "verifyPassword": cgi.escape(verifyPassword), "email": cgi.escape(email)})
 
 
     def post(self, userNameErrorMsg="", passwordErrorMsg ="", emailErrorMsg="", verifyPasswordErrorMsg="", username="", password="", verifyPassword="", email=""):
-        #looks inside the request to see what the user typed into form
 
+#casts escaped user input into variables
         user_Name = cgi.escape(self.request.get("username"))
         user_Email = cgi.escape(self.request.get("email"))
         user_Password = cgi.escape(self.request.get("password"))
         user_VerifyPassword = cgi.escape(self.request.get("verifyPassword"))
 
+#validates above variables using above RE criteria
         validUsername = valid_username(user_Name)
         validEmail = valid_email(user_Email)
         validPassword = valid_password(user_Password)
 
-
+#checks if user input passed validation f(x)s and flags error messages if they dont
         if validUsername == None:
             userNameErrorMsg = "Please enter valid username."
         if validEmail == None:
@@ -149,19 +153,19 @@ class Index(webapp2.RequestHandler):
             passwordErrorMsg = "Please enter valid password."
         if user_Password != user_VerifyPassword:
             verifyPasswordErrorMsg = "Passwords must match."
-
+#if any input is invalid remakes the form with correct and separate error messages, also preserves username and email input
         if validUsername == None or validEmail == None or validPassword == None or user_Password != user_VerifyPassword:
 
             self.response.out.write(formContent % {"userNameErrorMsg": userNameErrorMsg, "passwordErrorMsg": passwordErrorMsg, "emailErrorMsg": emailErrorMsg, "verifyPasswordErrorMsg": verifyPasswordErrorMsg, "username": cgi.escape(user_Name), "password": cgi.escape(password), "verifyPassword": cgi.escape(verifyPassword), "email": cgi.escape(user_Email)})
-
+#if all input is valid, sends to '/welcome'***also sends username info for welcome greeting
         else:
             self.redirect("/welcome?username="+user_Name)
 
 class WelcomeHandler(webapp2.RequestHandler):
-
-#LAST STEP: cant get "user_Name" into html but its getting the correct value in urlbar
+#welcome pages greets new user with their chosen user name input
+#TODO: LAST STEP: cant get "user_Name" into html but its getting the correct value in urlbar
     def get(self):
-        postHeader = "<h1>Welcome, " + username + "!</h1>"
+        postHeader = "<h1>Welcome, " + self.request.get("username") + "!</h1>"
         self.response.out.write(postHeader)
 
 
